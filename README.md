@@ -1,175 +1,70 @@
-# Celebal Technology — Data Science Internship (2025)
+<div align="center">
 
-**Name:** Neelam Nagar  
-**Intern ID:** CS_CSI_DS_683  
-**Domain:** Data Science  
-**Duration:** MAY 2025 – July 2025
+# 🎓 Celebal Technology — Data Science Internship 2025
 
----
+![Intern](https://img.shields.io/badge/Intern-Neelam%20Nagar-blueviolet?style=for-the-badge)
+![ID](https://img.shields.io/badge/ID-CS__CSI__DS__683-blue?style=for-the-badge)
+![Domain](https://img.shields.io/badge/Domain-Data%20Science-green?style=for-the-badge)
+![Duration](https://img.shields.io/badge/Duration-May%20–%20July%202025-orange?style=for-the-badge)
 
-## What this repo contains
-
-This repo has all 8 weekly assignments I completed as part of the Celebal Technology Data Science internship. Each week had a set of topics to study and one assignment to submit. The folders are named `Week-01` through `Week-08`, each with its own code, output, and a short explanation.
+</div>
 
 ---
 
-## Week-by-Week Breakdown
+## 👩‍💻 About This Repository
 
-### Week 1 — Foundations
-
-Getting comfortable with the tools and math that the rest of the internship builds on.
-
-**Topics covered:**
-- Python basics and a quick refresher
-- NumPy and Pandas for working with data
-- Vectors, matrices, and basic matrix operations
-- Eigenvalues, eigenvectors, and why they matter
-- Dimensionality reduction (the idea behind it)
-- Types of statistics, hypothesis testing
-- Error metrics and how to read them visually
-- Probability distributions, Bayes' theorem, Central Limit Theorem
-- Stationarity testing and model monitoring basics
-
-**Assignment:** Foundational exercises covering Python, linear algebra, statistics, and probability.
+This repository is a complete record of my 8-week Data Science internship at **Celebal Technology**. Each folder represents one week of work — covering everything from Python foundations all the way to building Agentic AI pipelines. Every week comes with code, outputs, and notes on what I learned.
 
 ---
 
-### Week 2 — Classical Machine Learning
+## 📅 Weekly Progress
 
-Building a proper ML pipeline from raw data to a working model.
-
-**Topics covered:**
-- Types of ML problems and the general pipeline
-- Bias-variance tradeoff, overfitting, underfitting
-- Data cleaning, EDA, encoding, feature scaling
-- Feature engineering and pipelines
-- Data leakage — what it is and how to avoid it
-- Linear, Ridge, and Lasso regression
-- Evaluation metrics and cross-validation
-- Hyperparameter tuning
-- Time series: components, stationarity, lag features, rolling stats, forecasting, chronological split
-
-**Assignment:** End-to-end ML pipeline on sales/price data.
+| Week | Topic | Key Concepts |
+|------|-------|-------------|
+| 📁 Week 01 | Foundations | Python, NumPy, Pandas, Linear Algebra, Statistics, Probability |
+| 📁 Week 02 | Classical ML | Regression, EDA, Feature Engineering, Cross-Validation |
+| 📁 Week 03 | Classification & Clustering | SVM, Random Forest, XGBoost, K-Means, DBSCAN |
+| 📁 Week 04 | Deep Learning | MLP, CNN, Transfer Learning, CIFAR-10 |
+| 📁 Week 05 | RNNs & Transformers | LSTM, GRU, Attention, BERT vs GPT |
+| 📁 Week 06 | Autoencoders & GenAI | VAE, GANs, RAG, Prompt Engineering |
+| 📁 Week 07 | RAG & LLMs | Fine-tuning, LoRA, PEFT, ReAct Framework |
+| 📁 Week 08 | Agentic AI | LangGraph, AutoGen, Tool Use, Agent Evaluation |
 
 ---
 
-### Week 3 — Classification & Clustering
-
-Working with labeled and unlabeled data using a range of algorithms.
-
-**Topics covered:**
-- Logistic regression, Naive Bayes, KNN, SVM
-- Decision trees, Random Forest, feature importance
-- Ensemble methods: AdaBoost, Gradient Boosting, XGBoost, LightGBM, Stacking
-- Clustering: K-Means, K-Medoids, DBSCAN, Hierarchical Clustering
-- Evaluation metrics for both classification and clustering
-
-**Assignment:** Customer Intelligence System using classification, ensemble learning, and clustering.
-
----
-
-### Week 4 — Intro to Deep Learning
-
-Understanding how neural networks work and applying them to images.
-
-**Topics covered:**
-- Perceptron and MLP
-- Forward pass and backpropagation
-- Activation functions: Sigmoid, Tanh, ReLU family
-- Loss functions for deep learning
-- Convolution layers, pooling, stride, padding
-- CNN architectures
-- Transfer learning
-
-**Assignment:** Image classification on CIFAR-10.
-
----
-
-### Week 5 — RNNs & Transformers
-
-Handling sequential data with recurrent networks and the transformer architecture.
-
-**Topics covered:**
-- RNN architecture and backpropagation through time (BPTT)
-- LSTM gates (forget, input, output) and cell state vs hidden state
-- GRU vs LSTM comparison
-- Attention mechanism and multi-head attention
-- Positional encoding
-- Transformer architecture end-to-end
-- BERT vs GPT — how they differ in design and use
-
-**Assignment:** Text generation using RNN/LSTM.
-
----
-
-### Week 6 — Autoencoders, GANs & GenAI
-
-Moving into generative models and the basics of working with LLMs.
-
-**Topics covered:**
-- Autoencoders and Variational Autoencoders (VAE)
-- GAN training — generator and discriminator
-- Optimizers: SGD with momentum, AdaGrad, RMSProp, Adam
-- Introduction to generative AI
-- RAG with LangChain
-- Prompt engineering
-
-**Assignment:** Autoencoder for image denoising.
-
----
-
-### Week 7 — RAG & LLMs
-
-Going deeper into retrieval-based systems and how large language models work internally.
-
-**Topics covered:**
-- Advanced RAG techniques
-- LLM internals — how they're built and trained
-- Fine-tuning with LoRA and PEFT
-- LLM evaluation methods
-- ReAct framework for reasoning + action
-
-**Assignment:** Document Question Answering System using RAG.
-
----
-
-### Week 8 — Agentic AI
-
-Building systems where an LLM can plan, use tools, and take actions on its own.
-
-**Topics covered:**
-- LangGraph for building stateful agent workflows
-- AutoGen for multi-agent systems
-- Tool use and function calling
-- Agent evaluation
-
-**Assignment:** Agentic AI pipeline.
-
----
-
-## Repo Structure
+## 🗂️ Repo Structure
 
 ```
-celebal-technology-internship/
+Celebal-Excellence-Internship/
 │
 ├── README.md
 ├── .gitignore
 │
-├── Week-01/
-│   ├── README.md
-│   ├── solution.ipynb
-│   ├── requirements.txt
-│   └── output/
-│
-├── Week-02/
-│   └── ...
-│
-└── Week-08/
-    └── ...
+├── Week-01/        # Foundations
+├── Week-02/        # Classical ML
+├── Week-03/        # Classification & Clustering
+├── Week-04/        # Deep Learning
+├── Week-05/        # RNNs & Transformers
+├── Week-06/        # Autoencoders & GenAI
+├── Week-07/        # RAG & LLMs
+└── Week-08/        # Agentic AI
 ```
 
 ---
 
-## Tech Used
+## 🛠️ Tech Stack
 
-Python 3.x, NumPy, Pandas, Scikit-learn, Matplotlib, Seaborn, TensorFlow / PyTorch, Hugging Face Transformers, LangChain, LangGraph, AutoGen
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
+![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat&logo=numpy&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat&logo=pandas&logoColor=white)
+![Scikit-learn](https://img.shields.io/badge/Scikit--learn-F7931E?style=flat&logo=scikit-learn&logoColor=white)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00?style=flat&logo=tensorflow&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat&logo=pytorch&logoColor=white)
+![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=flat&logo=huggingface&logoColor=black)
+![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat&logo=langchain&logoColor=white)
+
+---
+
+<div align="center">
+  <i>Built with curiosity and lots of debugging ☕</i>
+</div>
