@@ -5,7 +5,7 @@
 ![Intern](https://img.shields.io/badge/Intern-Neelam%20Nagar-blueviolet?style=for-the-badge)
 ![ID](https://img.shields.io/badge/ID-CS__CSI__DS__683-blue?style=for-the-badge)
 ![Domain](https://img.shields.io/badge/Domain-Data%20Science-green?style=for-the-badge)
-![Duration](https://img.shields.io/badge/Duration-May%20–%20July%202025-orange?style=for-the-badge)
+![Duration](https://img.shields.io/badge/Duration-May%20–%20July%202026-orange?style=for-the-badge)
 
 </div>
 
