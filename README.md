@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎓 Celebal Technology — Data Science Internship 2025
+# 🎓 Celebal Technology — Data Science Internship 2026
 
 ![Intern](https://img.shields.io/badge/Intern-Neelam%20Nagar-blueviolet?style=for-the-badge)
 ![ID](https://img.shields.io/badge/ID-CS__CSI__DS__683-blue?style=for-the-badge)
