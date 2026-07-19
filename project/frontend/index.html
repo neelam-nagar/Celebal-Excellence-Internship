@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quiz Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+    --ink: #0F172A;
+    --ink-dim: #64748B;
+    --ink-faint: #94A3B8;
+    --accent: #4F46E5;
+    --accent-dark: #4338CA;
+    --accent-tint: #EEF2FF;
+    --success: #16A34A;
+    --success-tint: #F0FDF4;
+    --danger: #DC2626;
+    --danger-tint: #FEF2F2;
+    --radius: 8px;
+    --radius-sm: 6px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-card: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-lg: 0 10px 24px -8px rgba(15,23,42,0.16);
+  }
+
+  *{ box-sizing: border-box; }
+  html, body{ height: 100%; }
+  body{
+    margin: 0;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+  button{ font-family: inherit; cursor: pointer; }
+  input, select, textarea{ font-family: inherit; }
+  input[type=radio], input[type=checkbox]{ accent-color: var(--accent); cursor: pointer; }
+  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+  a{ color: var(--accent); }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position: sticky; top: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; height: 60px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand{
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 0.98rem; color: var(--ink);
+  }
+  .brand-mark{
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #818CF8); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 800; flex-shrink: 0;
+    box-shadow: 0 3px 8px -2px rgba(79,70,229,0.5);
+  }
+  .brand-sub{ font-weight: 500; color: var(--ink-dim); font-size: 0.82rem; margin-left: 2px; }
+
+  .nav-tabs{ display: flex; gap: 4px; height: 100%; }
+  .nav-tab{
+    background: transparent; border: none; color: var(--ink-dim);
+    padding: 0 4px; height: 100%; font-weight: 600; font-size: 0.86rem;
+    border-bottom: 2px solid transparent;
+    display: flex; align-items: center;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    margin: 0 12px;
+  }
+  .nav-tab:hover{ color: var(--ink); }
+  .nav-tab.active{ color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ---------- LAYOUT ---------- */
+  main{
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 48px 32px 70px;
+  }
+  .view{ display: none; }
+  .view.active{ display: block; }
+
+  .page-header{ margin-bottom: 28px; }
+  .page-header h1{ font-size: 1.6rem; font-weight: 800; margin: 0 0 6px; color: var(--ink); }
+  .page-header p{ margin: 0; color: var(--ink-dim); font-size: 0.94rem; max-width: 560px; line-height: 1.55; }
+
+  @keyframes fadeSlideUp{
+    from{ opacity: 0; transform: translateY(10px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+  @keyframes viewFadeIn{
+    from{ opacity: 0; }
+    to{ opacity: 1; }
+  }
+  .view.active{ animation: viewFadeIn 0.3s ease; }
+  .cat-card{ animation: fadeSlideUp 0.45s ease both; }
+  .cat-card:nth-child(1){ animation-delay: 0.02s; }
+  .cat-card:nth-child(2){ animation-delay: 0.08s; }
+  .cat-card:nth-child(3){ animation-delay: 0.14s; }
+  .cat-card:nth-child(4){ animation-delay: 0.20s; }
+  .cat-card:nth-child(5){ animation-delay: 0.26s; }
+  .cat-card:nth-child(6){ animation-delay: 0.32s; }
+  .cat-card:nth-child(n+7){ animation-delay: 0.38s; }
+  .quiz-card{ animation: fadeSlideUp 0.35s ease both; }
+  .primary-btn, .ghost-btn, .btn-ink, .btn-outline{ transition: all 0.15s ease, transform 0.1s ease; }
+  .primary-btn:active:not(:disabled), .btn-ink:active{ transform: scale(0.97); }
+  .choice-btn{ transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease; }
+  .choice-btn:active:not(:disabled){ transform: scale(0.99); }
+
+  .section-label{
+    font-size: 0.78rem; font-weight: 700; color: var(--ink-dim);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin: 0 0 14px;
+  }
+
+  /* ---------- CATEGORY CARDS ---------- */
+  .cat-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  .cat-card{
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 20px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .cat-card::before{
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(90deg, var(--cat-color), color-mix(in srgb, var(--cat-color) 55%, white));
+  }
+  .cat-card:hover{
+    border-color: color-mix(in srgb, var(--cat-color) 35%, var(--border));
+    box-shadow: 0 16px 32px -14px color-mix(in srgb, var(--cat-color) 35%, transparent), var(--shadow-card);
+    transform: translateY(-4px);
+  }
+  .cat-card .cat-top{ display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .cat-badge{
+    width: 42px; height: 42px; border-radius: 11px;
+    background: linear-gradient(150deg, var(--cat-tint), color-mix(in srgb, var(--cat-tint) 60%, white));
+    color: var(--cat-color);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1.05rem; flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cat-color) 18%, transparent);
+    transition: transform 0.2s ease;
+  }
+  .cat-card:hover .cat-badge{ transform: scale(1.08) rotate(-4deg); }
+  .cat-card h3{ margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+  .cat-card p{ margin: 0 0 14px; font-size: 0.86rem; color: var(--ink-dim); line-height: 1.45; }
+  .cat-card .cat-meta{
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-dim);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .cat-card .cat-cta{
+    display: inline-flex; align-items: center; gap: 4px;
+    font-weight: 700; color: var(--cat-color);
+    opacity: 0; transform: translateX(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .cat-card:hover .cat-cta{ opacity: 1; transform: translateX(0); }
+  .cat-card .cat-cta svg{ width: 12px; height: 12px; transition: transform 0.2s ease; }
+  .cat-card:hover .cat-cta svg{ transform: translateX(2px); }
+  .empty-note{
+    color: var(--ink-dim); font-size: 0.9rem; padding: 20px;
+    border: 1px dashed var(--border); border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  /* ---------- QUIZ VIEW ---------- */
+  .quiz-wrap{ max-width: 600px; margin: 0 auto; }
+  .progress-bar-track{
+    height: 6px; border-radius: 999px; background: var(--border);
+    overflow: hidden; margin-bottom: 8px;
+  }
+  .progress-bar-fill{
+    height: 100%; background: var(--accent);
+    transition: width 0.3s ease;
+  }
+  .progress-label{
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-dim);
+    margin-bottom: 24px;
+  }
+  .progress-label .score-pill{
+    background: var(--success-tint); color: var(--success); font-weight: 700;
+    padding: 2px 9px; border-radius: var(--radius-sm);
+  }
+  .timer-watch{
+    position: relative;
+    width: 44px; height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .timer-watch svg{ transform: rotate(-90deg); }
+  .watch-bg{ fill: none; stroke: var(--border); stroke-width: 4; }
+  .watch-fill{
+    fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear, stroke 0.2s ease;
+  }
+  .watch-time{
+    position: absolute;
+    font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem; color: var(--ink);
+  }
+  .timer-watch.low .watch-fill{ stroke: var(--danger); }
+  .timer-watch.low .watch-time{ color: var(--danger); }
+  .timer-watch.low{ animation: watchPulse 1s ease-in-out infinite; }
+  @keyframes watchPulse{
+    0%, 100%{ transform: scale(1); }
+    50%{ transform: scale(1.08); }
+  }
+
+  .quiz-card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    box-shadow: var(--shadow-card);
+  }
+  .quiz-meta{
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .quiz-question{
+    font-weight: 700; font-size: 1.28rem; margin: 0 0 22px; line-height: 1.4; color: var(--ink);
+  }
+  .choices{ display: grid; gap: 10px; }
+  .choice-btn{
+    position: relative;
+    display: flex; align-items: center; gap: 12px;
+    text-align: left;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem; font-weight: 500;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .choice-btn .choice-indicator{
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid var(--border-strong); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .choice-btn:hover:not(:disabled){ border-color: var(--accent); background: var(--accent-tint); }
+  .choice-btn:hover:not(:disabled) .choice-indicator{ border-color: var(--accent); }
+  .choice-btn:disabled{ cursor: default; }
+  .choice-btn.correct{ border-color: var(--success); background: var(--success-tint); }
+  .choice-btn.correct .choice-indicator{ border-color: var(--success); background: var(--success); }
+  .choice-btn.wrong{ border-color: var(--danger); background: var(--danger-tint); }
+  .choice-btn.wrong .choice-indicator{ border-color: var(--danger); background: var(--danger); }
+  .choice-btn .mark{ color: #fff; font-size: 0.72rem; font-weight: 800; line-height: 1; }
+
+  .quiz-footer{ display: flex; justify-content: flex-end; margin-top: 24px; }
+  .primary-btn{
+    background: var(--accent); color: #fff; border: none;
+    padding: 10px 22px; border-radius: var(--radius-sm);
+    font-weight: 600; font-size: 0.88rem;
+    transition: background 0.15s ease, opacity 0.15s ease;
+  }
+  .primary-btn:hover:not(:disabled){ background: var(--accent-dark); }
+  .primary-btn:disabled{ opacity: 0.4; cursor: not-allowed; }
+  .ghost-btn{
+    background: var(--surface); border: 1.5px solid var(--border); color: var(--ink-dim);
+    padding: 9px 18px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.86rem;
+    transition: all 0.15s ease;
+  }
+  .ghost-btn:hover{ border-color: var(--border-strong); color: var(--ink); }
+
+  /* ---------- RESULT VIEW ---------- */
+  .result{ text-align: center; padding: 20px 0; max-width: 460px; margin: 0 auto; }
+  .ring-wrap{ position: relative; width: 148px; height: 148px; margin: 0 auto 20px; }
+  .ring-wrap svg{ transform: rotate(-90deg); }
+  .ring-bg{ fill: none; stroke: var(--border); stroke-width: 10; }
+  .ring-fill{ fill: none; stroke: var(--accent); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.7s ease; }
+  .ring-text{ position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-text .pct{ font-weight: 800; font-size: 1.7rem; color: var(--ink); line-height: 1; }
+  .ring-text .frac{ font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-dim); margin-top: 4px; }
+  .result h2{ font-size: 1.25rem; font-weight: 700; margin: 0 0 6px; }
+  .result p.result-sub{ color: var(--ink-dim); margin: 0 0 24px; font-size: 0.92rem; }
+  .result-actions{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---------- SHARED CARDS ---------- */
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 22px;
+    margin: 0 0 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card h3{ margin: 0 0 4px; font-size: 1rem; font-weight: 700; color: var(--ink); }
+  .card .card-sub{ margin: 0 0 16px; color: var(--ink-dim); font-size: 0.84rem; }
+
+  /* ---------- LOGIN VIEW ---------- */
+  #view-login.active{ display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 220px); }
+  .login-card{ margin: 0; width: 100%; max-width: 380px; }
+  .login-icon{
+    width: 40px; height: 40px; border-radius: 7px;
+    background: var(--accent-tint); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; margin-bottom: 14px;
+  }
+
+  .admin-header{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+
+  .field-label{
+    display: block; font-size: 0.78rem; font-weight: 600; color: var(--ink-dim);
+    margin: 0 0 6px;
+  }
+  .form-row{ display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; align-items: flex-start; }
+  .form-row input[type=text], .form-row input[type=password], .form-row select{
+    flex: 1; min-width: 170px;
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+  .form-row input::placeholder{ color: var(--ink-faint); }
+  .form-row input:focus, .form-row select:focus{ outline: none; border-color: var(--accent); }
+
+  .btn-ink{
+    background: var(--accent); color: #fff; border: none;
+    padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.87rem;
+    transition: background 0.15s ease;
+  }
+  .btn-ink:hover{ background: var(--accent-dark); }
+  .btn-outline{
+    background: var(--surface); border: 1.5px solid var(--border); color: var(--ink-dim);
+    padding: 8px 14px; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .btn-outline:hover{ border-color: var(--border-strong); color: var(--ink); }
+  .btn-danger{
+    background: var(--surface); border: 1.5px solid var(--border); color: var(--danger);
+    padding: 7px 12px; border-radius: var(--radius-sm); font-size: 0.78rem; font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .btn-danger:hover{ background: var(--danger-tint); border-color: var(--danger); }
+
+  .q-item{ border-top: 1px solid var(--border); padding: 16px 0; }
+  .q-item:first-child{ border-top: none; padding-top: 4px; }
+  .q-item-head{ display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .q-item-head .qtext{ font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+  .q-tag{
+    display: inline-flex; align-items: center;
+    font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600;
+    padding: 3px 9px; border-radius: var(--radius-sm);
+    background: var(--tag-bg, var(--accent-tint)); color: var(--tag-text, var(--accent));
+  }
+  .q-actions{ display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .choice-row{
+    display: flex; align-items: center; gap: 9px;
+    font-size: 0.85rem; color: var(--ink-dim);
+    padding: 5px 0;
+  }
+  .choice-row .dot-mark{ width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--border-strong); }
+  .choice-row.is-correct .dot-mark{ background: var(--success); }
+  .choice-row.is-correct{ color: var(--ink); font-weight: 600; }
+  .choices-list{ margin-top: 10px; margin-left: 2px; }
+  .id-badge{ font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-faint); }
+
+  /* ---------- CONFIRM MODAL ---------- */
+  .modal-overlay{
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(15,23,42,0.4);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+  .modal-overlay.show{ opacity: 1; pointer-events: auto; }
+  .modal-card{
+    background: var(--surface); border-radius: var(--radius);
+    padding: 22px 22px 18px; max-width: 340px; width: 90%;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal-card p{ margin: 0 0 18px; color: var(--ink); font-size: 0.92rem; font-weight: 600; }
+  .modal-actions{ display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-danger-solid{
+    background: var(--danger); color: #fff; border: none;
+    padding: 9px 16px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.83rem;
+    transition: opacity 0.15s ease;
+  }
+  .btn-danger-solid:hover{ opacity: 0.9; }
+
+  /* ---------- INLINE EDIT MODE ---------- */
+  .q-item.editing{
+    background: var(--accent-tint);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 16px 14px;
+    margin-top: 10px;
+  }
+  .q-item.editing:first-child{ margin-top: 0; }
+  .edit-label{
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--ink-dim); font-weight: 700; display: block; margin: 10px 0 5px;
+  }
+  .edit-label:first-child{ margin-top: 0; }
+  .edit-choice-row{ display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .edit-choice-row input[type=text]{
+    flex: 1; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: #fff; font-size: 0.87rem; color: var(--ink);
+  }
+  .edit-choice-row input[type=text]:focus{ outline: none; border-color: var(--accent); }
+  .edit-choice-row label{ display: flex; align-items: center; gap: 5px; font-size: 0.76rem; color: var(--ink-dim); white-space: nowrap; }
+  .edit-actions{ display: flex; gap: 8px; margin-top: 14px; }
+
+  .toast{
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: #fff; padding: 10px 18px; border-radius: var(--radius-sm);
+    font-size: 0.85rem; font-weight: 500; opacity: 0; pointer-events: none;
+    transition: all 0.2s ease; z-index: 50;
+  }
+  .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 600px){
+    nav{ padding: 0 16px; }
+    main{ padding: 28px 16px 80px; }
+    .quiz-card{ padding: 24px 18px; }
+    .nav-tab{ margin: 0 8px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <span class="brand-mark">QB</span>
+    Quiz Management System
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="navPlay" onclick="switchMode('play')">Take a Quiz</button>
+    <button class="nav-tab" id="navAdmin" onclick="switchMode('admin')">Manage Questions</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ===== LANDING VIEW ===== -->
+  <section class="view active" id="view-landing">
+    <div class="page-header">
+      <h1>Select a category</h1>
+    </div>
+    <p class="section-label">Categories</p>
+    <div class="cat-grid" id="catGrid"><div class="empty-note">Loading categories…</div></div>
+  </section>
+
+  <!-- ===== QUIZ VIEW ===== -->
+  <section class="view" id="view-quiz">
+    <div class="quiz-wrap">
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-label">
+        <span id="progressText">Question 1 of 1</span>
+        <div class="timer-watch" id="timerWatch">
+          <svg viewBox="0 0 44 44" width="44" height="44">
+            <circle class="watch-bg" cx="22" cy="22" r="18"/>
+            <circle class="watch-fill" id="watchFill" cx="22" cy="22" r="18" stroke-dasharray="113.1" stroke-dashoffset="0"/>
+          </svg>
+          <span class="watch-time" id="timerBadge">10</span>
+        </div>
+        <span class="score-pill" id="scoreTag">Score: 0</span>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-meta" id="quizMeta">Category</div>
+        <h2 class="quiz-question" id="quizQuestion">Loading question…</h2>
+        <div class="choices" id="quizChoices"></div>
+        <div class="quiz-footer">
+          <button class="primary-btn" id="nextBtn" disabled onclick="nextQuestion()">Next</button>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:22px;">
+        <button class="ghost-btn" onclick="goLanding()">Back to categories</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RESULT VIEW ===== -->
+  <section class="view" id="view-result">
+    <div class="result">
+      <p class="section-label" style="text-align:center;">Quiz complete</p>
+      <div class="ring-wrap">
+        <svg width="148" height="148" viewBox="0 0 148 148">
+          <circle class="ring-bg" cx="74" cy="74" r="64"/>
+          <circle class="ring-fill" id="ringFill" cx="74" cy="74" r="64" stroke-dasharray="402.1" stroke-dashoffset="402.1"/>
+        </svg>
+        <div class="ring-text">
+          <span class="pct" id="resultPct">0%</span>
+          <span class="frac" id="resultScore">0/0</span>
+        </div>
+      </div>
+      <h2 id="resultHeadline">Results</h2>
+      <p class="result-sub" id="resultSub"></p>
+      <div class="result-actions">
+        <button class="primary-btn" id="retryBtn" onclick="retryQuiz()">Try again</button>
+        <button class="ghost-btn" onclick="goLanding()">Choose another category</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ADMIN LOGIN VIEW ===== -->
+  <section class="view" id="view-login">
+    <div class="card login-card">
+      <span class="login-icon">&#128274;</span>
+      <h3>Admin sign-in</h3>
+      <p class="card-sub">Managing questions requires an admin password. Everyone else can still take the quiz.</p>
+      <div class="form-row">
+        <input type="password" id="loginPassword" placeholder="Admin password" style="flex-basis:100%;"
+               onkeydown="if(event.key==='Enter') adminLogin();" />
+      </div>
+      <p id="loginError" style="color:var(--danger); font-size:0.82rem; min-height: 1.2em; margin: 4px 0 4px;"></p>
+      <div class="edit-actions">
+        <button class="btn-ink" onclick="adminLogin()">Sign in</button>
+        <button class="btn-outline" onclick="switchMode('play')">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ADMIN VIEW ===== -->
+  <section class="view" id="view-admin">
+    <div class="admin-header">
+      <div>
+        <h1 style="font-size:1.35rem; font-weight:700; margin:0 0 4px;">Manage questions</h1>
+        <p style="margin:0; color:var(--ink-dim); font-size:0.88rem;">Create, edit, and remove quiz questions and choices.</p>
+      </div>
+      <button class="btn-outline" onclick="adminLogout()">Sign out</button>
+    </div>
+
+    <div class="card">
+      <h3>Add a new question</h3>
+      <p class="card-sub">Enter the question, its category, and its answer choices.</p>
+      <label class="field-label">Question text</label>
+      <div class="form-row">
+        <input type="text" id="newQText" placeholder="e.g. What is the time complexity of binary search?" style="flex-basis: 100%;" />
+      </div>
+      <label class="field-label">Category</label>
+      <div class="form-row">
+        <input type="text" id="newQCategory" placeholder="e.g. Programming" />
+      </div>
+      <label class="edit-label" style="margin-top:14px;">Answer choices — select the correct one</label>
+      <div class="edit-choice-row">
+        <input type="radio" name="newQCorrect" value="0" checked />
+        <input type="text" id="newChoice0" placeholder="Choice 1" />
+      </div>
+      <div class="edit-choice-row">
+        <input type="radio" name="newQCorrect" value="1" />
+        <input type="text" id="newChoice1" placeholder="Choice 2" />
+      </div>
+      <div class="edit-choice-row">
+        <input type="radio" name="newQCorrect" value="2" />
+        <input type="text" id="newChoice2" placeholder="Choice 3 (optional)" />
+      </div>
+      <div class="edit-choice-row">
+        <input type="radio" name="newQCorrect" value="3" />
+        <input type="text" id="newChoice3" placeholder="Choice 4 (optional)" />
+      </div>
+      <div class="edit-actions">
+        <button class="btn-ink" onclick="createQuestion()">Add question</button>
+      </div>
+    </div>
+
+    <div class="card" id="questionsCard">
+      <h3>All questions</h3>
+      <div id="adminList"><p style="color:var(--ink-dim); font-size:0.88rem;">Loading…</p></div>
+    </div>
+  </section>
+
+</main>
+
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <p id="modalMessage">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn-outline" id="modalCancelBtn">Cancel</button>
+      <button class="btn-danger-solid" id="modalConfirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- CONFIG ----------
+  const API_BASE = "http://127.0.0.1:8000";
+
+  // ---------- STATE ----------
+  let allQuestions = [];
+  let currentQuizQuestions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let currentCategory = "";
+  let answered = false;
+
+  const QUESTION_SECONDS = 10;
+  let timerInterval = null;
+  let timeLeft = QUESTION_SECONDS;
+
+  let adminToken = localStorage.getItem('quizAdminToken') || null;
+  let adminTokenExpiresAt = Number(localStorage.getItem('quizAdminTokenExpiresAt') || 0);
+
+  function isAdminLoggedIn(){
+    return adminToken && Date.now() < adminTokenExpiresAt;
+  }
+  function setAdminSession(token, expiresAtUnix){
+    adminToken = token;
+    adminTokenExpiresAt = expiresAtUnix * 1000;
+    localStorage.setItem('quizAdminToken', token);
+    localStorage.setItem('quizAdminTokenExpiresAt', String(adminTokenExpiresAt));
+  }
+  function clearAdminSession(){
+    adminToken = null;
+    adminTokenExpiresAt = 0;
+    localStorage.removeItem('quizAdminToken');
+    localStorage.removeItem('quizAdminTokenExpiresAt');
+  }
+
+  // ---------- CATEGORY COLOR CODING (neutral, professional palette) ----------
+  const CAT_PALETTE = [
+    { color: '#4F46E5', tint: '#EEF2FF' },  // indigo
+    { color: '#0891B2', tint: '#ECFEFF' },  // cyan
+    { color: '#059669', tint: '#ECFDF5' },  // emerald
+    { color: '#D97706', tint: '#FFFBEB' },  // amber
+    { color: '#DB2777', tint: '#FDF2F8' },  // pink
+    { color: '#475569', tint: '#F1F5F9' },  // slate
+  ];
+  function catTheme(cat){
+    let hash = 0;
+    for(let i=0; i<cat.length; i++){ hash = (hash * 31 + cat.charCodeAt(i)) >>> 0; }
+    const palette = CAT_PALETTE[hash % CAT_PALETTE.length];
+    return { ...palette, initial: cat.trim().charAt(0).toUpperCase() || '?' };
+  }
+
+  // ---------- HELPERS ----------
+  function toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+  function showView(id){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  function switchMode(mode){
+    if(mode === 'admin'){
+      document.getElementById('navAdmin').classList.add('active');
+      document.getElementById('navPlay').classList.remove('active');
+      if(isAdminLoggedIn()){
+        showView('view-admin');
+        loadAdminList();
+      } else {
+        showView('view-login');
+      }
+    } else {
+      document.getElementById('navPlay').classList.add('active');
+      document.getElementById('navAdmin').classList.remove('active');
+      showView('view-landing');
+      loadCategories();
+    }
+  }
+  function goLanding(){ stopTimer(); switchMode('play'); loadCategories(); }
+
+  async function adminLogin(){
+    const pwEl = document.getElementById('loginPassword');
+    const errEl = document.getElementById('loginError');
+    const password = pwEl.value;
+    errEl.textContent = '';
+    if(!password){ errEl.textContent = 'Enter your admin password.'; return; }
+    try{
+      const res = await fetch(API_BASE + '/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json();
+      if(!res.ok){ errEl.textContent = data.detail || 'Sign-in failed.'; return; }
+      setAdminSession(data.token, data.expires_at);
+      pwEl.value = '';
+      showView('view-admin');
+      loadAdminList();
+      toast('Signed in as admin.');
+    }catch(e){
+      errEl.textContent = 'Could not reach the API at ' + API_BASE + '.';
+    }
+  }
+  function adminLogout(){
+    clearAdminSession();
+    toast('Signed out.');
+    switchMode('admin');
+  }
+
+  async function api(path, options={}){
+    const headers = { 'Content-Type': 'application/json' };
+    if(adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
+    const res = await fetch(API_BASE + path, { headers, ...options });
+    if(res.status === 401){
+      clearAdminSession();
+      showView('view-login');
+      const errEl = document.getElementById('loginError');
+      if(errEl) errEl.textContent = 'Your session expired — please sign in again.';
+      throw new Error('Session expired');
+    }
+    if(!res.ok){
+      let detail = res.statusText;
+      try{ const j = await res.json(); detail = j.detail || detail; }catch(e){}
+      throw new Error(detail);
+    }
+    if(res.status === 204) return null;
+    return res.json();
+  }
+
+  // ---------- LANDING / CATEGORIES ----------
+  async function loadCategories(){
+    const grid = document.getElementById('catGrid');
+    try{
+      allQuestions = await api('/questions?limit=1000');
+    }catch(e){
+      grid.innerHTML = `<div class="empty-note">Couldn't reach the API at ${API_BASE}. Make sure the backend is running, then refresh.</div>`;
+      return;
+    }
+    if(allQuestions.length === 0){
+      grid.innerHTML = `<div class="empty-note">No questions yet. Go to "Manage Questions" to add some, or run <code>python seed_data.py</code> on the backend.</div>`;
+      return;
+    }
+    const byCategory = {};
+    allQuestions.forEach(q => {
+      const cat = q.category || 'Uncategorized';
+      byCategory[cat] = byCategory[cat] || [];
+      byCategory[cat].push(q);
+    });
+    grid.innerHTML = Object.entries(byCategory).map(([cat, qs]) => {
+      const theme = catTheme(cat);
+      return `
+      <button class="cat-card" style="--cat-color:${theme.color}; --cat-tint:${theme.tint};" onclick="startQuiz('${cat.replace(/'/g, "\\'")}')">
+        <div class="cat-top">
+          <span class="cat-badge">${theme.initial}</span>
+          <h3>${cat}</h3>
+        </div>
+        <p>${qs.length} question${qs.length>1?'s':''} available in this category.</p>
+        <div class="cat-meta">
+          <span>${qs.length} question${qs.length>1?'s':''}</span>
+          <span class="cat-cta">Start quiz <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </button>
+    `}).join('');
+  }
+
+  // ---------- QUIZ FLOW ----------
+  function shuffle(arr){
+    const a = [...arr];
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function startQuiz(category){
+    const qs = allQuestions.filter(q => (q.category || 'Uncategorized') === category && q.choices.length > 0);
+    if(qs.length === 0){ toast('This category has no answerable questions yet.'); return; }
+    currentQuizQuestions = shuffle(qs);
+    currentCategory = category;
+    currentIndex = 0;
+    score = 0;
+    showView('view-quiz');
+    renderProgress();
+    renderQuestion();
+  }
+
+  function renderProgress(){
+    const total = currentQuizQuestions.length;
+    const pct = Math.round((currentIndex / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `Question ${currentIndex+1} of ${total}`;
+  }
+
+  function renderQuestion(){
+    answered = false;
+    const q = currentQuizQuestions[currentIndex];
+    document.getElementById('quizMeta').textContent = currentCategory;
+    document.getElementById('quizQuestion').textContent = q.question_text;
+    document.getElementById('scoreTag').textContent = `Score: ${score}`;
+    document.getElementById('nextBtn').disabled = true;
+    document.getElementById('nextBtn').textContent = currentIndex === currentQuizQuestions.length - 1 ? 'View results' : 'Next';
+
+    const choicesEl = document.getElementById('quizChoices');
+    const shuffled = shuffle(q.choices);
+    choicesEl.innerHTML = shuffled.map(c => `
+      <button class="choice-btn" data-correct="${c.is_correct}" onclick="selectChoice(this)">
+        <span class="choice-indicator"></span>
+        <span>${c.choice_text}</span>
+      </button>
+    `).join('');
+
+    startTimer();
+  }
+
+  // ---------- PER-QUESTION TIMER ----------
+  function startTimer(){
+    clearInterval(timerInterval);
+    timeLeft = QUESTION_SECONDS;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if(timeLeft <= 0){
+        clearInterval(timerInterval);
+        timeUp();
+      }
+    }, 1000);
+  }
+
+  function stopTimer(){
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+
+  const WATCH_CIRCUMFERENCE = 113.1;
+
+  function updateTimerDisplay(){
+    const wrap = document.getElementById('timerWatch');
+    const label = document.getElementById('timerBadge');
+    const fill = document.getElementById('watchFill');
+    if(!wrap || !label || !fill) return;
+    const clamped = Math.max(timeLeft, 0);
+    label.textContent = clamped;
+    const offset = WATCH_CIRCUMFERENCE * (1 - clamped / QUESTION_SECONDS);
+    fill.style.strokeDashoffset = offset;
+    wrap.classList.toggle('low', clamped <= 3);
+  }
+
+  function timeUp(){
+    if(answered) return;
+    answered = true;
+    document.querySelectorAll('.choice-btn').forEach(b => {
+      b.disabled = true;
+      const correct = b.getAttribute('data-correct') === 'true';
+      if(correct){
+        b.classList.add('correct');
+        b.querySelector('.choice-indicator').innerHTML = '<span class="mark">&#10003;</span>';
+      }
+    });
+    document.getElementById('nextBtn').disabled = false;
+    toast("Time's up — moving on.");
+  }
+
+  function selectChoice(btn){
+    if(answered) return;
+    answered = true;
+    stopTimer();
+    const isCorrect = btn.getAttribute('data-correct') === 'true';
+    document.querySelectorAll('.choice-btn').forEach(b => {
+      b.disabled = true;
+      const correct = b.getAttribute('data-correct') === 'true';
+      if(correct){
+        b.classList.add('correct');
+        b.querySelector('.choice-indicator').innerHTML = '<span class="mark">&#10003;</span>';
+      } else if(b === btn){
+        b.classList.add('wrong');
+        b.querySelector('.choice-indicator').innerHTML = '<span class="mark">&#10005;</span>';
+      }
+    });
+    if(isCorrect) score++;
+    document.getElementById('scoreTag').textContent = `Score: ${score}`;
+    document.getElementById('nextBtn').disabled = false;
+  }
+
+  function nextQuestion(){
+    stopTimer();
+    if(currentIndex < currentQuizQuestions.length - 1){
+      currentIndex++;
+      renderProgress();
+      renderQuestion();
+    } else {
+      currentIndex++;
+      renderProgress();
+      finishQuiz();
+    }
+  }
+
+  function finishQuiz(){
+    stopTimer();
+    showView('view-result');
+    const total = currentQuizQuestions.length;
+    const pct = Math.round((score/total)*100);
+    document.getElementById('resultScore').textContent = `${score}/${total}`;
+    document.getElementById('resultPct').textContent = `${pct}%`;
+
+    const circumference = 402.1;
+    const offset = circumference - (pct/100) * circumference;
+    const ring = document.getElementById('ringFill');
+    ring.style.strokeDashoffset = circumference;
+    requestAnimationFrame(() => { ring.style.strokeDashoffset = offset; });
+
+    let headline = "Quiz complete";
+    let msg = "Review the material and try again to improve your score.";
+    if(pct === 100){ msg = "All questions answered correctly."; }
+    else if(pct >= 70){ msg = "Strong result — most answers were correct."; }
+    else if(pct >= 40){ msg = "A reasonable start; some review is recommended."; }
+    document.getElementById('resultHeadline').textContent = headline;
+    document.getElementById('resultSub').textContent = `${pct}% correct on ${currentCategory}. ${msg}`;
+  }
+
+  function retryQuiz(){ startQuiz(currentCategory); }
+
+  // ---------- ADMIN CRUD ----------
+  let editingQuestionId = null;
+
+  function confirmModal(message){
+    return new Promise(resolve => {
+      const overlay = document.getElementById('modalOverlay');
+      document.getElementById('modalMessage').textContent = message;
+      overlay.classList.add('show');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+      function cleanup(result){
+        overlay.classList.remove('show');
+        confirmBtn.removeEventListener('click', onConfirm);
+        cancelBtn.removeEventListener('click', onCancel);
+        resolve(result);
+      }
+      function onConfirm(){ cleanup(true); }
+      function onCancel(){ cleanup(false); }
+      confirmBtn.addEventListener('click', onConfirm);
+      cancelBtn.addEventListener('click', onCancel);
+    });
+  }
+
+  async function loadAdminList(){
+    const list = document.getElementById('adminList');
+    list.innerHTML = `<p style="color:var(--ink-dim); font-size:0.88rem;">Loading…</p>`;
+    try{
+      const questions = await api('/questions?limit=1000');
+      allQuestions = questions;
+      if(questions.length === 0){
+        list.innerHTML = `<p style="color:var(--ink-dim); font-size:0.88rem;">No questions yet — add one above.</p>`;
+        return;
+      }
+      list.innerHTML = questions.map(q => renderAdminQuestion(q)).join('');
+    }catch(e){
+      list.innerHTML = `<p style="color:var(--danger); font-size:0.88rem;">Couldn't load questions: ${e.message}. Is the backend running at ${API_BASE}?</p>`;
+    }
+  }
+
+  function renderAdminQuestion(q){
+    const category = q.category || 'Uncategorized';
+    const theme = catTheme(category);
+
+    if(editingQuestionId === q.id){
+      const choiceRows = q.choices.map(c => `
+        <div class="edit-choice-row">
+          <input type="radio" name="editCorrect-${q.id}" value="${c.id}" ${c.is_correct ? 'checked' : ''} />
+          <input type="text" id="editChoiceText-${c.id}" value="${c.choice_text.replace(/"/g, '&quot;')}" />
+          <button class="btn-danger" style="padding:5px 9px; font-size:0.7rem;" onclick="deleteChoice(${c.id})">Remove</button>
+        </div>
+      `).join('');
+      return `
+        <div class="q-item editing">
+          <label class="edit-label">Question</label>
+          <input type="text" id="editQText-${q.id}" value="${q.question_text.replace(/"/g, '&quot;')}" style="width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:var(--radius-sm); background:#fff; font-size:0.95rem; font-weight:600; color:var(--ink);" />
+
+          <label class="edit-label">Category</label>
+          <input type="text" id="editQCategory-${q.id}" value="${category.replace(/"/g, '&quot;')}" style="width:100%; padding:8px 10px; border:1.5px solid var(--border); border-radius:var(--radius-sm); background:#fff; font-size:0.88rem; color:var(--ink);" />
+
+          <label class="edit-label">Choices — select the correct one</label>
+          ${choiceRows || '<p style="color:var(--ink-dim); font-size:0.84rem;">No choices yet — add one below.</p>'}
+          <div class="form-row" style="margin-top:6px;">
+            <input type="text" id="newChoiceText-${q.id}" placeholder="Add another choice" />
+            <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--ink-dim);">
+              <input type="checkbox" id="newChoiceCorrect-${q.id}" /> Correct
+            </label>
+            <button class="btn-outline" onclick="createChoice(${q.id})">Add</button>
+          </div>
+
+          <div class="edit-actions">
+            <button class="btn-ink" onclick="saveEditQuestion(${q.id})">Save</button>
+            <button class="btn-outline" onclick="cancelEditQuestion()">Cancel</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const choicesHtml = q.choices.map(c => `
+      <div class="choice-row ${c.is_correct ? 'is-correct' : ''}">
+        <span class="dot-mark"></span>
+        <span>${c.choice_text}</span>
+        <span class="id-badge">#${c.id}</span>
+      </div>
+    `).join('') || `<p style="color:var(--ink-dim); font-size:0.84rem;">No choices yet.</p>`;
+
+    return `
+      <div class="q-item">
+        <div class="q-item-head">
+          <span class="qtext">${q.question_text} <span class="id-badge">#${q.id}</span></span>
+          <div class="q-actions">
+            <span class="q-tag" style="--tag-bg:${theme.tint}; --tag-text:${theme.color};">${category}</span>
+            <button class="btn-outline" onclick="editQuestion(${q.id})">Edit</button>
+            <button class="btn-danger" onclick="deleteQuestion(${q.id})">Delete</button>
+          </div>
+        </div>
+        <div class="choices-list">
+          ${choicesHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  async function createQuestion(){
+    const textEl = document.getElementById('newQText');
+    const catEl = document.getElementById('newQCategory');
+    const question_text = textEl.value.trim();
+    const category = catEl.value.trim();
+    if(!question_text){ toast('Question text is required.'); return; }
+
+    const choiceInputs = [0,1,2,3].map(i => document.getElementById(`newChoice${i}`));
+    const choiceTexts = choiceInputs.map(el => el.value.trim());
+    const correctIndex = document.querySelector('input[name="newQCorrect"]:checked').value;
+    const filledCount = choiceTexts.filter(t => t).length;
+    if(filledCount > 0 && filledCount < 2){ toast('Add at least 2 choices, or none for now.'); return; }
+    if(filledCount > 0 && !choiceTexts[correctIndex]){ toast('The selected correct choice is empty.'); return; }
+
+    try{
+      const question = await api('/questions', { method: 'POST', body: JSON.stringify({ question_text, category: category || null }) });
+      for(let i = 0; i < choiceTexts.length; i++){
+        if(!choiceTexts[i]) continue;
+        await api('/choices', { method: 'POST', body: JSON.stringify({
+          choice_text: choiceTexts[i], is_correct: String(i) === correctIndex, question_id: question.id
+        }) });
+      }
+      textEl.value = ''; catEl.value = '';
+      choiceInputs.forEach(el => el.value = '');
+      document.querySelector('input[name="newQCorrect"][value="0"]').checked = true;
+      toast('Question added.');
+      loadAdminList();
+    }catch(e){ toast('Error: ' + e.message); }
+  }
+
+  async function deleteQuestion(id){
+    if(!(await confirmModal('Delete this question and all its choices?'))) return;
+    try{
+      await api(`/questions/${id}`, { method: 'DELETE' });
+      toast('Question deleted.');
+      loadAdminList();
+    }catch(e){ toast('Error: ' + e.message); }
+  }
+
+  function editQuestion(id){
+    editingQuestionId = id;
+    loadAdminList();
+  }
+  function cancelEditQuestion(){
+    editingQuestionId = null;
+    loadAdminList();
+  }
+
+  async function saveEditQuestion(id){
+    const question_text = document.getElementById(`editQText-${id}`).value.trim();
+    const category = document.getElementById(`editQCategory-${id}`).value.trim();
+    if(!question_text){ toast('Question text is required.'); return; }
+
+    const q = allQuestions.find(q => q.id === id);
+    const correctRadio = document.querySelector(`input[name="editCorrect-${id}"]:checked`);
+    const correctChoiceId = correctRadio ? Number(correctRadio.value) : null;
+
+    try{
+      await api(`/questions/${id}`, { method: 'PUT', body: JSON.stringify({ question_text, category: category || null }) });
+      for(const c of q.choices){
+        const newText = document.getElementById(`editChoiceText-${c.id}`).value.trim();
+        const isCorrect = c.id === correctChoiceId;
+        if(newText !== c.choice_text || isCorrect !== c.is_correct){
+          await api(`/choices/${c.id}`, { method: 'PUT', body: JSON.stringify({ choice_text: newText, is_correct: isCorrect }) });
+        }
+      }
+      editingQuestionId = null;
+      toast('Question updated.');
+      loadAdminList();
+    }catch(e){ toast('Error: ' + e.message); }
+  }
+
+  async function createChoice(questionId){
+    const textEl = document.getElementById(`newChoiceText-${questionId}`);
+    const correctEl = document.getElementById(`newChoiceCorrect-${questionId}`);
+    const choice_text = textEl.value.trim();
+    if(!choice_text){ toast('Choice text is required.'); return; }
+    try{
+      await api('/choices', { method: 'POST', body: JSON.stringify({ choice_text, is_correct: correctEl.checked, question_id: questionId }) });
+      toast('Choice added.');
+      loadAdminList();
+    }catch(e){ toast('Error: ' + e.message); }
+  }
+
+  async function deleteChoice(id){
+    if(!(await confirmModal('Delete this choice?'))) return;
+    try{
+      await api(`/choices/${id}`, { method: 'DELETE' });
+      toast('Choice deleted.');
+      loadAdminList();
+    }catch(e){ toast('Error: ' + e.message); }
+  }
+
+  // ---------- INIT ----------
+  loadCategories();
+</script>
+
+</body>
+</html>
