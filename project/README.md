@@ -1,184 +1,366 @@
 # Quiz Backend Management API (FastAPI)
 
-A RESTful backend for creating and managing quiz questions and answer
-choices, built with **FastAPI**, **SQLAlchemy** (ORM), and **Pydantic**
-(validation). This is a **General Quiz Management System** — it supports
-questions from any category (General Knowledge, Programming, Mathematics,
-Data Science, Business Studies, Aptitude, etc.) via the optional
-`category` field.
+## 🌐 Live Demo
+
+- 🚀 **Live Application:** https://celebal-excellence-internship.onrender.com
+- 📖 **Swagger API Documentation:** https://celebal-excellence-internship.onrender.com/docs
+
+A RESTful backend for creating and managing quiz questions and answer choices, built with **FastAPI**, **SQLAlchemy** (ORM), and **Pydantic** (validation).
+
+This is a **General Quiz Management System** that supports questions from any category (General Knowledge, Programming, Mathematics, Data Science, Business Studies, Aptitude, etc.) using the optional `category` field.
+
+---
+
+## Features
+
+- ✅ CRUD operations for Questions
+- ✅ CRUD operations for Choices
+- ✅ SQLAlchemy ORM with SQLite (supports PostgreSQL/MySQL)
+- ✅ Pydantic request validation
+- ✅ Admin authentication with hashed passwords
+- ✅ Token-based authorization (24-hour expiry)
+- ✅ Cascade delete (Question → Choices)
+- ✅ Interactive Swagger API documentation
+- ✅ Category-based filtering
+- ✅ Pagination support
+- ✅ Responsive frontend for playing and managing quizzes
+
+---
 
 ## Project Structure
 
-```
+```text
 quiz_backend/
 ├── app/
-│   ├── main.py          # FastAPI app, router registration, /admin/login
-│   ├── database.py      # SQLAlchemy engine/session setup
-│   ├── models.py        # ORM models: Question, Choice
-│   ├── schemas.py        # Pydantic request/response schemas
-│   ├── crud.py           # Business logic / DB operations
-│   ├── auth.py            # Admin password hashing + signed login tokens
+│   ├── main.py
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── crud.py
+│   ├── auth.py
 │   └── routers/
-│       ├── questions.py  # /questions endpoints
-│       └── choices.py    # /choices endpoints
-├── set_admin_password.py  # Run once to choose your admin password
-├── seed_data.py           # Populates sample questions across categories
+│       ├── questions.py
+│       └── choices.py
+├── frontend/
+│   └── index.html
+├── set_admin_password.py
+├── seed_data.py
 ├── requirements.txt
 └── README.md
 ```
 
+---
+
 ## Database Design
 
-**Question table:** `id`, `question_text`, `category` (optional)
-**Choice table:** `id`, `choice_text`, `is_correct`, `question_id` (FK)
+### Question
 
-Relationship: one Question → many Choices (cascade delete — deleting a
-question removes its choices too).
+| Column | Type |
+|---------|------|
+| id | Integer |
+| question_text | String |
+| category | String (Optional) |
 
-## Admin access (who can add/edit/delete)
+### Choice
 
-Anyone can **play** the quiz — reading questions is public. But
-**managing** questions (create/edit/delete) requires an admin login,
-so random visitors can't change your quiz data.
+| Column | Type |
+|---------|------|
+| id | Integer |
+| choice_text | String |
+| is_correct | Boolean |
+| question_id | Foreign Key |
 
-- The admin password is never stored in plain text — only a salted
-  PBKDF2 hash, saved locally in `admin_config.json` (already listed in
-  `.gitignore`, so it never gets committed).
-- Logging in issues a signed token that expires after 24 hours — the
-  frontend re-prompts for the password once it expires.
+**Relationship**
 
-## Setup
+One Question → Many Choices
+
+Deleting a question automatically deletes all of its choices.
+
+---
+
+## Admin Authentication
+
+Anyone can **play** the quiz.
+
+Only authenticated admins can:
+
+- Create Questions
+- Update Questions
+- Delete Questions
+- Create Choices
+- Update Choices
+- Delete Choices
+
+Security Features
+
+- Password stored using PBKDF2 hashing
+- Password never stored in plain text
+- Signed authentication token
+- Token expires after 24 hours
+
+---
+
+## Installation
+
+### 1. Create Virtual Environment
 
 ```bash
-# 1. Create a virtual environment (recommended)
-python3 -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
+python -m venv venv
+```
 
-# 2. Install dependencies
+Linux/macOS
+
+```bash
+source venv/bin/activate
+```
+
+Windows
+
+```bash
+venv\Scripts\activate
+```
+
+### 2. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# 3. Choose your admin password (only needs to be done once)
+### 3. Set Admin Password
+
+```bash
 python set_admin_password.py
+```
 
-# 4. (Optional) Seed sample data
+### 4. Seed Sample Data (Optional)
+
+```bash
 python seed_data.py
+```
 
-# 5. Run the server
+### 5. Run Server
+
+```bash
 uvicorn app.main:app --reload
 ```
 
-Then open **http://127.0.0.1:8000/docs** for interactive Swagger UI where
-you can try every endpoint directly in the browser. Write endpoints
-(POST/PUT/DELETE) will return `401 Unauthorized` there too unless you
-click **Authorize** and paste in a token obtained from `/admin/login`.
+Backend
 
-
-
-## Switching Databases
-
-By default this uses SQLite (`quiz.db`, zero setup). To use MySQL or
-PostgreSQL instead, edit `app/database.py`:
-
-```python
-# PostgreSQL
-SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost:5432/quizdb"
-
-# MySQL (requires: pip install pymysql)
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://user:password@localhost:3306/quizdb"
 ```
+http://127.0.0.1:8000
+```
+
+Swagger
+
+```
+http://127.0.0.1:8000/docs
+```
+
+---
 
 ## API Endpoints
 
 ### Question Management
+
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/questions` | Create a new quiz question |
-| GET | `/questions` | Get all questions (supports `?category=`, `?skip=`, `?limit=`) |
-| GET | `/questions/{id}` | Get a specific question (with its choices) |
-| PUT | `/questions/{id}` | Update a question |
-| DELETE | `/questions/{id}` | Delete a question and its choices |
+|--------|----------|-------------|
+| POST | `/questions` | Create Question |
+| GET | `/questions` | Get All Questions |
+| GET | `/questions/{id}` | Get Question by ID |
+| PUT | `/questions/{id}` | Update Question |
+| DELETE | `/questions/{id}` | Delete Question |
+
+Supports
+
+- category filter
+- skip
+- limit
+
+---
 
 ### Choice Management
+
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/choices` | Add a new answer choice |
-| GET | `/choices` | Get all answer choices |
-| GET | `/choices/{id}` | Get a specific choice |
-| PUT | `/choices/{id}` | Update a choice |
-| DELETE | `/choices/{id}` | Delete a choice |
+|--------|----------|-------------|
+| POST | `/choices` | Create Choice |
+| GET | `/choices` | Get All Choices |
+| GET | `/choices/{id}` | Get Choice |
+| PUT | `/choices/{id}` | Update Choice |
+| DELETE | `/choices/{id}` | Delete Choice |
+
+---
 
 ## Example Requests
 
-**Create a question:**
+### Create Question
+
 ```bash
 curl -X POST http://127.0.0.1:8000/questions \
-  -H "Content-Type: application/json" \
-  -d '{"question_text": "What is the capital of France?", "category": "General Knowledge"}'
+-H "Content-Type: application/json" \
+-d '{
+"question_text":"What is the capital of France?",
+"category":"General Knowledge"
+}'
 ```
 
-**Add a choice to it (use the returned question id):**
+---
+
+### Create Choice
+
 ```bash
 curl -X POST http://127.0.0.1:8000/choices \
-  -H "Content-Type: application/json" \
-  -d '{"choice_text": "Paris", "is_correct": true, "question_id": 1}'
+-H "Content-Type: application/json" \
+-d '{
+"choice_text":"Paris",
+"is_correct":true,
+"question_id":1
+}'
 ```
 
-**Get a question with all its choices:**
+---
+
+### Get Question
+
 ```bash
 curl http://127.0.0.1:8000/questions/1
 ```
 
-## Notes on This Implementation
+---
 
-- **Validation**: Pydantic schemas enforce required fields (e.g.
-  `question_text` cannot be empty) and correct types before anything
-  touches the database.
-- **Cascade delete**: Deleting a question automatically deletes its
-  associated choices (`cascade="all, delete-orphan"` in `models.py`).
-- **Layered architecture**: routes (`routers/`) → business logic
-  (`crud.py`) → ORM models (`models.py`) → database (`database.py`),
-  which mirrors the architecture diagram in the project spec.
+## Switching Database
 
-## Possible Extensions (per project spec)
+SQLite (Default)
 
-- User authentication and authorization
-- Timer-based quizzes, scoring, and leaderboards
-- Quiz attempt history and analytics dashboard
-- Adaptive quizzes / recommendation systems (ML-based)
+```python
+SQLALCHEMY_DATABASE_URL = "sqlite:///./quiz.db"
+```
+
+PostgreSQL
+
+```python
+SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost:5432/quizdb"
+```
+
+MySQL
+
+```python
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://user:password@localhost:3306/quizdb"
+```
+
+---
 
 ## Frontend
 
-A complete, attractive frontend lives in `frontend/index.html` — a
-single self-contained HTML file (no build step, no framework) with a
-chalkboard-themed **Play** mode and a paper-themed **Manage Questions**
-(admin/CRUD) mode.
+A responsive frontend is included inside
 
-- **Play mode**: pick a category, answer questions pulled live from
-  the API, get hand-drawn chalk checkmark/cross feedback, see your
-  score at the end.
-- **Manage Questions mode**: add, edit, and delete questions and
-  choices — a full UI over every CRUD endpoint.
+```
+frontend/index.html
+```
 
-### Running it
+Features
 
-1. Start the backend first (CORS is already enabled in `app/main.py`):
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-2. Serve the frontend (don't just double-click the file — serve it so
-   `fetch()` works cleanly):
-   ```bash
-   cd frontend
-   python3 -m http.server 5500
-   ```
-3. Open **http://127.0.0.1:5500** in your browser.
+- Play Quiz
+- Category Selection
+- Score Calculation
+- Admin Login
+- Add Questions
+- Edit Questions
+- Delete Questions
+- Manage Choices
 
-If your backend runs somewhere other than `http://127.0.0.1:8000`,
-update the `API_BASE` constant near the top of the `<script>` block in
-`frontend/index.html`.
+Run
 
-## Tested
+```bash
+cd frontend
+python -m http.server 5500
+```
 
-Every endpoint was verified end-to-end (create → read → update →
-delete, including cascade delete of choices when a question is
-removed) before delivery.
+Open
+
+```
+http://127.0.0.1:5500
+```
+
+---
+
+## Validation
+
+Pydantic validates
+
+- Empty question text
+- Required fields
+- Boolean values
+- Integer IDs
+
+before any database operation.
+
+---
+
+## Architecture
+
+```
+Routes
+      ↓
+CRUD Layer
+      ↓
+SQLAlchemy Models
+      ↓
+Database
+```
+
+---
+
+## Future Improvements
+
+- JWT Authentication
+- User Accounts
+- Quiz Timer
+- Leaderboard
+- Attempt History
+- Analytics Dashboard
+- AI-based Adaptive Quiz
+
+---
+
+## Testing
+
+✔ Create Question
+
+✔ Read Question
+
+✔ Update Question
+
+✔ Delete Question
+
+✔ Create Choice
+
+✔ Read Choice
+
+✔ Update Choice
+
+✔ Delete Choice
+
+✔ Cascade Delete
+
+✔ Admin Authentication
+
+✔ Swagger Documentation
+
+---
+
+## Tech Stack
+
+- FastAPI
+- SQLAlchemy
+- Pydantic
+- SQLite
+- Uvicorn
+- HTML
+- CSS
+- JavaScript
+
+---
+
+## Author
+
+Developed as part of the **Celebal Technologies Excellence Internship**.
