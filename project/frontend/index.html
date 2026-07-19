@@ -313,7 +313,6 @@
   .card .card-sub{ margin: 0 0 16px; color: var(--ink-dim); font-size: 0.84rem; }
 
   /* ---------- LOGIN VIEW ---------- */
-  #view-login.active{ display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 220px); }
   .login-card{ margin: 0; width: 100%; max-width: 380px; }
   .login-icon{
     width: 40px; height: 40px; border-radius: 7px;
@@ -520,32 +519,13 @@
     </div>
   </section>
 
-  <!-- ===== ADMIN LOGIN VIEW ===== -->
-  <section class="view" id="view-login">
-    <div class="card login-card">
-      <span class="login-icon">&#128274;</span>
-      <h3>Admin sign-in</h3>
-      <p class="card-sub">Managing questions requires an admin password. Everyone else can still take the quiz.</p>
-      <div class="form-row">
-        <input type="password" id="loginPassword" placeholder="Admin password" style="flex-basis:100%;"
-               onkeydown="if(event.key==='Enter') adminLogin();" />
-      </div>
-      <p id="loginError" style="color:var(--danger); font-size:0.82rem; min-height: 1.2em; margin: 4px 0 4px;"></p>
-      <div class="edit-actions">
-        <button class="btn-ink" onclick="adminLogin()">Sign in</button>
-        <button class="btn-outline" onclick="switchMode('play')">Cancel</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== ADMIN VIEW ===== -->
+  <!-- ===== QUESTION MANAGEMENT VIEW ===== -->
   <section class="view" id="view-admin">
     <div class="admin-header">
       <div>
         <h1 style="font-size:1.35rem; font-weight:700; margin:0 0 4px;">Manage questions</h1>
         <p style="margin:0; color:var(--ink-dim); font-size:0.88rem;">Create, edit, and remove quiz questions and choices.</p>
       </div>
-      <button class="btn-outline" onclick="adminLogout()">Sign out</button>
     </div>
 
     <div class="card">
@@ -618,25 +598,6 @@
   let timerInterval = null;
   let timeLeft = QUESTION_SECONDS;
 
-  let adminToken = localStorage.getItem('quizAdminToken') || null;
-  let adminTokenExpiresAt = Number(localStorage.getItem('quizAdminTokenExpiresAt') || 0);
-
-  function isAdminLoggedIn(){
-    return adminToken && Date.now() < adminTokenExpiresAt;
-  }
-  function setAdminSession(token, expiresAtUnix){
-    adminToken = token;
-    adminTokenExpiresAt = expiresAtUnix * 1000;
-    localStorage.setItem('quizAdminToken', token);
-    localStorage.setItem('quizAdminTokenExpiresAt', String(adminTokenExpiresAt));
-  }
-  function clearAdminSession(){
-    adminToken = null;
-    adminTokenExpiresAt = 0;
-    localStorage.removeItem('quizAdminToken');
-    localStorage.removeItem('quizAdminTokenExpiresAt');
-  }
-
   // ---------- CATEGORY COLOR CODING (neutral, professional palette) ----------
   const CAT_PALETTE = [
     { color: '#4F46E5', tint: '#EEF2FF' },  // indigo
@@ -668,12 +629,8 @@
     if(mode === 'admin'){
       document.getElementById('navAdmin').classList.add('active');
       document.getElementById('navPlay').classList.remove('active');
-      if(isAdminLoggedIn()){
-        showView('view-admin');
-        loadAdminList();
-      } else {
-        showView('view-login');
-      }
+      showView('view-admin');
+      loadAdminList();
     } else {
       document.getElementById('navPlay').classList.add('active');
       document.getElementById('navAdmin').classList.remove('active');
@@ -683,46 +640,9 @@
   }
   function goLanding(){ stopTimer(); switchMode('play'); loadCategories(); }
 
-  async function adminLogin(){
-    const pwEl = document.getElementById('loginPassword');
-    const errEl = document.getElementById('loginError');
-    const password = pwEl.value;
-    errEl.textContent = '';
-    if(!password){ errEl.textContent = 'Enter your admin password.'; return; }
-    try{
-      const res = await fetch(API_BASE + '/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      });
-      const data = await res.json();
-      if(!res.ok){ errEl.textContent = data.detail || 'Sign-in failed.'; return; }
-      setAdminSession(data.token, data.expires_at);
-      pwEl.value = '';
-      showView('view-admin');
-      loadAdminList();
-      toast('Signed in as admin.');
-    }catch(e){
-      errEl.textContent = 'Could not reach the API at ' + API_BASE + '.';
-    }
-  }
-  function adminLogout(){
-    clearAdminSession();
-    toast('Signed out.');
-    switchMode('admin');
-  }
-
   async function api(path, options={}){
     const headers = { 'Content-Type': 'application/json' };
-    if(adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
     const res = await fetch(API_BASE + path, { headers, ...options });
-    if(res.status === 401){
-      clearAdminSession();
-      showView('view-login');
-      const errEl = document.getElementById('loginError');
-      if(errEl) errEl.textContent = 'Your session expired — please sign in again.';
-      throw new Error('Session expired');
-    }
     if(!res.ok){
       let detail = res.statusText;
       try{ const j = await res.json(); detail = j.detail || detail; }catch(e){}

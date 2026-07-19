@@ -4,15 +4,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import crud, schemas
-from app.auth import require_admin
 from app.database import get_db
 
 router = APIRouter(prefix="/choices", tags=["Choices"])
 
 
-@router.post("", response_model=schemas.Choice, status_code=201, dependencies=[Depends(require_admin)])
+@router.post("", response_model=schemas.Choice, status_code=201)
 def create_choice(choice: schemas.ChoiceCreate, db: Session = Depends(get_db)):
-    """Add a new answer choice to a question. Requires admin login."""
+    """Add a new answer choice to a question."""
     db_choice = crud.create_choice(db, choice)
     if db_choice is None:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -34,18 +33,18 @@ def read_choice(choice_id: int, db: Session = Depends(get_db)):
     return db_choice
 
 
-@router.put("/{choice_id}", response_model=schemas.Choice, dependencies=[Depends(require_admin)])
+@router.put("/{choice_id}", response_model=schemas.Choice)
 def update_choice(choice_id: int, choice: schemas.ChoiceUpdate, db: Session = Depends(get_db)):
-    """Update an answer choice. Requires admin login."""
+    """Update an answer choice."""
     db_choice = crud.update_choice(db, choice_id, choice)
     if db_choice is None:
         raise HTTPException(status_code=404, detail="Choice not found")
     return db_choice
 
 
-@router.delete("/{choice_id}", status_code=204, dependencies=[Depends(require_admin)])
+@router.delete("/{choice_id}", status_code=204)
 def delete_choice(choice_id: int, db: Session = Depends(get_db)):
-    """Delete an answer choice. Requires admin login."""
+    """Delete an answer choice."""
     deleted = crud.delete_choice(db, choice_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Choice not found")
