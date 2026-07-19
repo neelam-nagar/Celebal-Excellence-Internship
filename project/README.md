@@ -2,7 +2,6 @@
 
 <p align="center">
 
-<img src="https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
 <img src="https://img.shields.io/badge/SQLAlchemy-ORM-red?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/Pydantic-Validation-blue?style=for-the-badge"/>
 <img src="https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite"/>
@@ -15,9 +14,6 @@
 <img src="https://img.shields.io/badge/🚀%20Live%20Demo-Open%20Application-success?style=for-the-badge"/>
 </a>
 
-<a href="https://celebal-excellence-internship.onrender.com/docs">
-<img src="https://img.shields.io/badge/📖%20Swagger%20Docs-Explore%20API-blue?style=for-the-badge"/>
-</a>
 
 </p>
 
