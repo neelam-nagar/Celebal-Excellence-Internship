@@ -12,12 +12,15 @@ Then open http://127.0.0.1:8000/docs for interactive Swagger UI.
 """
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from app.auth import _check_password, create_token, has_admin_password_set
 from app.database import Base, engine
 from app.routers import choices, questions
+from pathlib import Path
+
 
 # Create all tables on startup (for SQLite / quick dev use).
 # For production, use Alembic migrations instead.
@@ -44,9 +47,13 @@ app.include_router(questions.router)
 app.include_router(choices.router)
 
 
-@app.get("/", tags=["Health"])
+BASE_DIR = Path(__file__).resolve().parent.parent
+FRONTEND_FILE = BASE_DIR / "frontend" / "index.html"
+
+@app.get("/", include_in_schema=False)
 def root():
-    """Simple health-check / welcome endpoint."""
+    if FRONTEND_FILE.exists():
+        return FileResponse(FRONTEND_FILE)
     return {
         "message": "Quiz Backend Management API is running",
         "docs": "/docs",
